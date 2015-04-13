@@ -18,27 +18,27 @@ static float percent = 0;
 static void fucking_russian(int number, char* text, char* def, char* ending1, char* ending234)
 {
   if (number >= 10 && number <= 19)
-  	strcat(text, def);
+    strcat(text, def);
   else
     switch (number % 10)
-		{
- 			case 0:
- 			case 5:
- 			case 6:
- 			case 7:
- 			case 8:
- 			case 9:
+    {
+      case 0:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+      case 9:
         strcat(text, def);
- 				break;
- 			case 1:
- 				strcat(text, ending1);
- 				break;
- 			case 2:
- 			case 3:
- 			case 4:
- 				strcat(text, ending234);        
- 			  break;
- 		}	  
+        break;
+      case 1:
+        strcat(text, ending1);
+        break;
+      case 2:
+      case 3:
+      case 4:
+        strcat(text, ending234);        
+        break;
+    }
 }
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
@@ -92,15 +92,15 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 
 static void progress_layer_update_callback(Layer *layer, GContext *ctx)
 {
-    graphics_context_set_stroke_color(ctx, GColorBlack);
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    GRect rect = layer_get_bounds(layer);
-    graphics_draw_round_rect(ctx, rect, 0);
-    rect.origin.x += 2;
-    rect.origin.y += 2;
-    rect.size.h -= 4;
-    rect.size.w = (rect.size.w-4)*percent / 100;
-    graphics_fill_rect(ctx, rect, 0, GCornerNone);
+  graphics_context_set_stroke_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, GColorBlack);
+  GRect rect = layer_get_bounds(layer);
+  graphics_draw_round_rect(ctx, rect, 0);
+  rect.origin.x += 2;
+  rect.origin.y += 2;
+  rect.size.h -= 4;
+  rect.size.w = (rect.size.w-4)*percent / 100;
+  graphics_fill_rect(ctx, rect, 0, GCornerNone);
 }
 
 static void in_received_handler(DictionaryIterator *received, void *context) {
