@@ -9,7 +9,10 @@ var options = {
   "config_end_month": 12,
   "config_end_day": 9,
   "config_end_hour": 12,
-  "config_end_min": 0
+  "config_end_min": 0,
+  "config_text_ostalos": "До дембеля осталось",
+  "config_text_uje": "Ты дембель уже",
+  "config_text_otslujil": "Ты отслужил"
 };
 
 function java_mktime(hour,minute,day,month,year) 
@@ -22,7 +25,10 @@ function send_config()
 {
   var config = {
     "start_time": java_mktime(options["config_start_hour"], options["config_start_min"], options["config_start_day"], options["config_start_month"], options["config_start_year"]),
-    "end_time": java_mktime(options["config_end_hour"], options["config_end_min"], options["config_end_day"], options["config_end_month"], options["config_end_year"])
+    "end_time": java_mktime(options["config_end_hour"], options["config_end_min"], options["config_end_day"], options["config_end_month"], options["config_end_year"]),
+    "text_ostalos": options["config_text_ostalos"],
+    "text_uje": options["config_text_uje"],
+    "text_otslujil": options["config_text_otslujil"]
   };
   Pebble.sendAppMessage(config);
 }

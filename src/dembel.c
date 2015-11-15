@@ -2,6 +2,9 @@
 
 static time_t start_time;
 static time_t end_time;
+static char text_otslujul[128];
+static char text_ostalos[128];
+static char text_uje[128];
   
 static Window *window;
 static TextLayer *time_layer;
@@ -14,6 +17,9 @@ static float percent = 0;
 
 #define MSG_START_TIME 0
 #define MSG_END_TIME 1
+#define MSG_TEXT_OTSLUJIL 2
+#define MSG_TEXT_OSTALOS 3
+#define MSG_TEXT_UJE 4
   
 static void fucking_russian(int number, char* text, char* def, char* ending1, char* ending234)
 {
@@ -67,18 +73,20 @@ static void handle_tick(struct tm *tick_time, TimeUnits units_changed)
   fucking_russian(left_days, den, "ней", "ень", "ня");
 
   if (end_time > now)
-    text_layer_set_text(left_time_layer, "До дембеля осталось");
+    text_layer_set_text(left_time_layer, text_ostalos);
   else
-    text_layer_set_text(left_time_layer, "Ты дембель уже");
+    text_layer_set_text(left_time_layer, text_uje);
   snprintf(left_time_str, sizeof(left_time_str), "%d %s,\n%d %s\nи %d %s", 
           left_days, den, left_hours, chas, left_mins, minut);
   text_layer_set_text(left_time_layer2, left_time_str);   
   
-  percent = 100.0 * (now - start_time) / (end_time - start_time);  
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "now = %d, start_time = %d, end_time = %d", (int)now, (int)start_time, (int)end_time);  
+  percent = 100.0 * (now - start_time) / (end_time - start_time); 
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "percent = %d", (int)percent);
   if (percent > 100) percent = 100;  
   if (percent < 0) percent = 0;
   static char percent_str[200];
-  snprintf(percent_str, sizeof(percent_str), "Ты отслужил %d.%02d%%", (int)percent, (int)(percent*100)%100);
+  snprintf(percent_str, sizeof(percent_str), "%s %d.%02d%%", text_otslujul, (int)percent, (int)(percent*100)%100);
   text_layer_set_text(percent_layer, percent_str);
   layer_mark_dirty(progress_layer);
   
@@ -115,31 +123,65 @@ static void in_received_handler(DictionaryIterator *received, void *context) {
     end_time = tuple->value->int32;
     persist_write_int(MSG_END_TIME, end_time);
   }
+  tuple = dict_find(received, MSG_TEXT_OTSLUJIL);
+  if (tuple) {
+    strcpy(text_otslujul, tuple->value->cstring);
+    persist_write_string(MSG_TEXT_OTSLUJIL, text_otslujul);
+  }
+  tuple = dict_find(received, MSG_TEXT_OSTALOS);
+  if (tuple) {
+    strcpy(text_ostalos, tuple->value->cstring);
+    persist_write_string(MSG_TEXT_OSTALOS, text_ostalos);
+  }
+  tuple = dict_find(received, MSG_TEXT_UJE);
+  if (tuple) {
+    strcpy(text_uje, tuple->value->cstring);
+    persist_write_string(MSG_TEXT_UJE, text_uje);
+  }
   time_t now = time(NULL);
   handle_tick(localtime(&now), 0);
 }
 
 static void handle_init(void) {
-  struct tm tick_time;
-  tick_time.tm_year = 2014 - 1900;
-  tick_time.tm_mon = 12 - 1;
-  tick_time.tm_mday = 9;
-  tick_time.tm_hour = 12 - 1;
-  tick_time.tm_min = 0;
-  tick_time.tm_sec = 0;
-  start_time = mktime(&tick_time);
-  tick_time.tm_year = 2015 - 1900;
-  end_time = mktime(&tick_time);
+  time_t rawtime;
+  time (&rawtime);
+  struct tm * tick_time;
+  tick_time = localtime(&rawtime);
+  tick_time->tm_year = 2014 - 1900;
+  tick_time->tm_mon = 12 - 1;
+  tick_time->tm_mday = 9;
+  tick_time->tm_hour = 12 - 1;
+  tick_time->tm_min = 0;
+  tick_time->tm_sec = 0;
+  start_time = mktime(tick_time);
+  tick_time = localtime(&rawtime);
+  tick_time->tm_year = 2015 - 1900;
+  tick_time->tm_mon = 12 - 1;
+  tick_time->tm_mday = 9;
+  tick_time->tm_hour = 12 - 1;
+  tick_time->tm_min = 0;
+  tick_time->tm_sec = 0;
+  end_time = mktime(tick_time);
 
+  strcpy(text_otslujul, "Ты отслужил");
+  strcpy(text_ostalos, "До дембеля осталось");
+  strcpy(text_uje, "Ты дембель уже");
+  
   // Read stored settings
   if (persist_exists(MSG_START_TIME))
     start_time = persist_read_int(MSG_START_TIME);
   if (persist_exists(MSG_END_TIME))
     end_time = persist_read_int(MSG_END_TIME);
-
+  if (persist_exists(MSG_TEXT_OTSLUJIL))
+    persist_read_string(MSG_TEXT_OTSLUJIL, text_otslujul, sizeof(text_otslujul));
+  if (persist_exists(MSG_TEXT_OSTALOS))
+    persist_read_string(MSG_TEXT_OSTALOS, text_ostalos, sizeof(text_ostalos));
+  if (persist_exists(MSG_TEXT_UJE))
+    persist_read_string(MSG_TEXT_UJE, text_uje, sizeof(text_uje));
+    
   // Open communication channel
   app_message_register_inbox_received(in_received_handler);
-  app_message_open(64, 64);
+  app_message_open(256, 256);
   
 	// Create a window and text layer
 	window = window_create();

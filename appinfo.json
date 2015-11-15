@@ -1,7 +1,10 @@
 {
     "appKeys": {
         "end_time": 1,
-        "start_time": 0
+        "start_time": 0,
+        "text_ostalos": 3,
+        "text_otslujil": 2,
+        "text_uje": 4
     },
     "capabilities": [
         "configurable"
@@ -18,8 +21,7 @@
         "aplite"
     ],
     "uuid": "3ac71f3b-063c-470a-b94b-cb09154adc78",
-    "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }
